@@ -28,10 +28,3 @@ test2311.symfony.php-cat.com {
      root * /2311test/public
 
  }
-
-
-*.ru, *.xn--p1ai, *.com, *.info {
-    # tls support@php-cat.com
-    tls internal
-    respond "ещё чуть чуть и вот вот, а пока идите сюда > <a href='https://php-cat.com' target='_blank' >php-cat.com</a>"
-}

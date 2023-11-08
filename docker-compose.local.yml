@@ -1,0 +1,74 @@
+version: '3.8'
+
+networks:
+  web2311:
+    driver: bridge
+
+services:
+  caddy:
+    container_name: caddy
+    image: caddy:2.6
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - './caddy/Caddyfile:/etc/caddy/Caddyfile'
+      - './caddy/config:/config/caddy/'
+      - '${FOLDER_2311TEST}:${FOLDER_2311TEST_SERV}'
+    depends_on:
+      - db_mysql
+      - 2311test
+    networks:
+      - web2311
+
+  db_mysql:
+    container_name: db_mysql
+    image: mariadb:10.7.8
+    networks:
+      - web2311
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DB_ROOT_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - '${MYSQL_DB_FOLDER}:/var/lib/mysql'
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db_mysql:db
+    ports:
+      - 6061:80
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DB_ROOT_PASSWORD}
+      UPLOAD_LIMIT: 300M
+    depends_on:
+      - db_mysql
+    networks:
+      - web2311
+
+  2311test:
+    container_name: 2311test
+    depends_on:
+      - db_mysql
+    networks:
+      - web2311
+    links:
+      - db_mysql:ss_db
+    build:
+      context: .
+      dockerfile: docker.2311test.Dockerfile
+    working_dir: ${FOLDER_2311TEST_SERV}
+    environment:
+      - PHPGROUP=www-data
+      - PHPUSER=www-data
+      - FOLDER=${FOLDER_2311TEST_SERV}
+    restart: unless-stopped
+    expose:
+      - 9000
+    volumes:
+      - '${FOLDER_2311TEST}:${FOLDER_2311TEST_SERV}'

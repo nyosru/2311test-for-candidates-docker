@@ -1,0 +1,48 @@
+
+кружки.сергейсб.рф, xn--f1aeeb2as.xn--90adfbu3bff.xn--p1ai, domainwaiter.com, ттт72.рф, xn--72-qmcaa.xn--p1ai, ttt72.ru, domain.php-cat.com  {
+
+	# Формируем самоподписной сертификат для работы https
+	# tls internal
+    tls support@php-cat.com
+
+    php_fastcgi 2308beget:9000
+
+    file_server
+    encode gzip
+
+#   handle /storage/* {
+ #       file_server
+  #      root * /2308beget/storage/app/public/*
+   # }
+
+    #root /storage/* /2308beget/storage/app/public/
+    root * /2308beget/public
+
+}
+
+
+# phpcat.local, wire.local {
+livewire.php-cat.com {
+	# Формируем самоподписной сертификат для работы https
+	# tls internal
+    tls support@php-cat.com
+
+    php_fastcgi 2309livewire:9000
+    
+    file_server
+    encode gzip
+
+    #root /storage /2309livewire/storage/public
+    root * /2309livewire/public
+
+}
+
+сергейсб.рф, xn--90adfbu3bff.xn--p1ai {
+    tls support@php-cat.com
+    redir / https://php-cat.com
+}
+
+*.ru, *.xn--p1ai, *.com, *.info {
+    tls support@php-cat.com
+    respond "ещё чуть чуть и вот вот, а пока идите сюда > <a href='https://php-cat.com' target='_blank' >php-cat.com</a>"
+}

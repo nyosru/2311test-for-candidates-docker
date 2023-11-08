@@ -1,0 +1,21 @@
+localhost {
+    
+	# Формируем самоподписной сертификат для работы https
+	tls internal
+    # tls support@php-cat.com
+
+    php_fastcgi 2311test:9000
+    
+    file_server
+    encode gzip
+
+    root * /2311test/public
+
+}
+
+
+*.ru, *.xn--p1ai, *.com, *.info {
+    # tls support@php-cat.com
+    tls internal
+    respond "ещё чуть чуть и вот вот, а пока идите сюда > <a href='https://php-cat.com' target='_blank' >php-cat.com</a>"
+}

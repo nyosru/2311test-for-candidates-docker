@@ -1,127 +1,74 @@
 version: '3.8'
 
 networks:
-  laravel: null
+  web2311:
+    driver: bridge
 
 services:
-
   caddy:
     container_name: caddy
-    # image: caddy:2.6.4
     image: caddy:2.6
     restart: unless-stopped
-    # restart: always
-
-    # build:
-    #   context: .
-    #   dockerfile: caddy/Dockerfile
-
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
-
     volumes:
       - './caddy/Caddyfile:/etc/caddy/Caddyfile'
       - './caddy/config:/config/caddy/'
-      - './caddy/certs:/data/caddy/locks/'
-      - './caddy/certs3:/data/caddy/certificates/'
-
-      - '${FOLDER_2308BEGET}:/2308beget'
-      - '${FOLDER_2309LARAWIRE}:/2309livewire'
-
+      - '${FOLDER_2311TEST}:${FOLDER_2311TEST_SERV}'
     depends_on:
-      - 2308beget
-      - 2309livewire
       - db_mysql
-
+      - 2311test
     networks:
-      - laravel
-    #   # - ttt72_net
+      - web2311
 
   db_mysql:
     container_name: db_mysql
-
     image: mariadb:10.7.8
-
     networks:
-      - laravel
-
+      - web2311
     environment:
       MYSQL_ROOT_HOST: "%"
       MYSQL_ROOT_PASSWORD: ${MYSQL_DB_ROOT_PASSWORD}
-
     ports:
       - 3306:3306
     volumes:
       - '${MYSQL_DB_FOLDER}:/var/lib/mysql'
     restart: unless-stopped
 
-
-  2308beget:
-    container_name: 2308beget
-
-    build:
-      context: .
-      dockerfile: docker.2308beget.Dockerfile
-    working_dir: /2308beget
-    environment:
-      - PHPGROUP=www-data
-      - PHPUSER=www-data
-    restart: unless-stopped
-      # tty: true
-    expose:
-      - 9000
-    volumes:
-      - '${FOLDER_2308BEGET}:/2308beget'
-
-    networks:
-      - laravel
-    depends_on:
-      - db_mysql
-
-
-  #++
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     links:
       - db_mysql:db
     ports:
-      - 6060:80
+      - 6061:80
     environment:
-      MYSQL_ROOT_PASSWORD: ${BU_DB_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DB_ROOT_PASSWORD}
       UPLOAD_LIMIT: 300M
     depends_on:
       - db_mysql
     networks:
-      - laravel
+      - web2311
 
-
-  2309livewire:
-    container_name: 2309livewire
-
+  2311test:
+    container_name: 2311test
     depends_on:
       - db_mysql
-
     networks:
-      - laravel
-
+      - web2311
+    links:
+      - db_mysql:ss_db
     build:
       context: .
-      dockerfile: docker.2309livewire.Dockerfile
-
-#    working_dir: /2309livewire
-
+      dockerfile: docker.2311test.Dockerfile
+    working_dir: ${FOLDER_2311TEST_SERV}
     environment:
       - PHPGROUP=www-data
       - PHPUSER=www-data
-
+      - FOLDER=${FOLDER_2311TEST_SERV}
     restart: unless-stopped
-    # tty: true
     expose:
       - 9000
-    # links:
-    #   - db_mysql:db
     volumes:
-      - '${FOLDER_2309LARAWIRE}:/2309livewire'
-
+      - '${FOLDER_2311TEST}:${FOLDER_2311TEST_SERV}'
